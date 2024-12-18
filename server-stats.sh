@@ -1,73 +1,74 @@
 #!/bin/bash
 
-# Function to get CPU usage
-get_cpu_usage() {
-    echo "CPU Usage:"
-    top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print "CPU Usage: " 100 - $1 "%"}'
-    echo ""
+# Function to display total CPU usage
+function cpu_usage() {
+    echo -e "\n--- CPU Usage ---"
+    # CPU usage in percentage (with idle time subtracted from 100)
+    top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print "Total CPU usage: " 100 - $1 "%"}'
 }
 
-# Function to get memory usage
-get_memory_usage() {
-    echo "Memory Usage:"
-    free -m | awk 'NR==2{printf "Used: %s MB (%.2f%%), Free: %s MB\n", $3, ($3/$2)*100, $4}'
-    echo ""
+# Function to display total memory usage (Free vs Used)
+function memory_usage() {
+    echo -e "\n--- Memory Usage ---"
+    # Memory usage in MB/GB
+    free -h | grep Mem | awk '{print "Total Memory: " $2 " | Used: " $3 " | Free: " $4 " | Memory Usage: " $3/$2 * 100 "%"}'
 }
 
-# Function to get disk usage
-get_disk_usage() {
-    echo "Disk Usage:"
-    df -h | grep '^/dev' | awk '{print $1, $3, $4, $5}'
-    echo ""
+# Function to display total disk usage (Free vs Used)
+function disk_usage() {
+    echo -e "\n--- Disk Usage ---"
+    # Disk usage on the root partition (/) in human-readable format
+    df -h | grep '^/dev/' | awk '{print $1 " | Total: " $2 " | Used: " $3 " | Free: " $4 " | Usage: " $5}'
 }
 
-# Function to get top 5 processes by CPU usage
-get_top_cpu_processes() {
-    echo "Top 5 processes by CPU usage:"
-    ps aux --sort=-%cpu | head -n 6
-    echo ""
+# Function to display top 5 processes by CPU usage
+function top_cpu_processes() {
+    echo -e "\n--- Top 5 Processes by CPU Usage ---"
+    # Top 5 processes by CPU usage
+    ps aux --sort=-%cpu | awk 'NR<=6 {print $0}'
 }
 
-# Function to get top 5 processes by memory usage
-get_top_memory_processes() {
-    echo "Top 5 processes by memory usage:"
-    ps aux --sort=-%mem | head -n 6
-    echo ""
+# Function to display top 5 processes by memory usage
+function top_memory_processes() {
+    echo -e "\n--- Top 5 Processes by Memory Usage ---"
+    # Top 5 processes by memory usage
+    ps aux --sort=-%mem | awk 'NR<=6 {print $0}'
 }
 
-# Optional: Additional Stats
-get_additional_stats() {
-    echo "Additional System Stats:"
-
-    # OS version
-    echo "OS Version: $(lsb_release -d | awk -F'\t' '{print $2}')"
+# Optional: Display additional server stats
+function additional_stats() {
+    echo -e "\n--- Additional Server Stats ---"
+    
+    # OS Version
+    echo "OS Version:"
+    uname -a
 
     # Uptime
-    echo "Uptime: $(uptime -p)"
-
+    echo -e "\nUptime:"
+    uptime
+    
     # Load average
-    echo "Load Average: $(uptime | awk -F'load average:' '{ print $2 }')"
-
-    # Logged-in users
-    echo "Logged-in Users:"
+    echo -e "\nLoad Average:"
+    uptime | awk -F'load average:' '{ print $2 }'
+    
+    # Logged in users
+    echo -e "\nLogged in Users:"
     who
-
-    # Failed login attempts (last 24 hours)
-    echo "Failed Login Attempts (Last 24 Hours):"
-    journalctl -u sshd | grep "Failed password" | grep "$(date --date='yesterday' +'%b %d')" | wc -l
-
-    echo ""
+    
+    # Failed login attempts (from /var/log/auth.log)
+    echo -e "\nFailed Login Attempts:"
+    grep "Failed password" /var/log/auth.log | wc -l
 }
 
-# Main Function
-main() {
-    get_cpu_usage
-    get_memory_usage
-    get_disk_usage
-    get_top_cpu_processes
-    get_top_memory_processes
-    get_additional_stats
+# Main function that calls the individual functions
+function main() {
+    cpu_usage
+    memory_usage
+    disk_usage
+    top_cpu_processes
+    top_memory_processes
+    additional_stats
 }
 
-# Run the script
+# Run the main function
 main
