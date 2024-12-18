@@ -41,3 +41,5 @@ Run the script with the following command:
 ```
 
 This will output the current CPU, memory, and disk usage and the top processes by CPU and memory.
+
+![Output](https://github.com/user-attachments/assets/91974679-859d-4598-9ddc-542afb095628)
