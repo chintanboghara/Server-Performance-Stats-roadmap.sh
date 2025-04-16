@@ -27,8 +27,8 @@ Ensure these tools are installed on your system. Most Linux distributions includ
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/chintanboghara/server-performance-stats.git
-   cd server-performance-stats
+   git clone https://github.com/chintanboghara/Server-Performance-Stats-roadmap.sh.git
+   cd Server-Performance-Stats-roadmap.sh
    ```
 
 2. Make the script executable:
